@@ -33,30 +33,7 @@
             overflow-x: hidden;
         }
 
-        /* GRAIN OVERLAY */
-        body::before {
-            content: '';
-            position: fixed;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
-            opacity: 0.022;
-            pointer-events: none;
-            z-index: 9999;
-            animation: grain 8s steps(10) infinite;
-        }
-        @keyframes grain {
-            0%, 100% { transform: translate(0, 0); }
-            10% { transform: translate(-2%, -3%); }
-            20% { transform: translate(3%, 2%); }
-            30% { transform: translate(-1%, 4%); }
-            40% { transform: translate(4%, -1%); }
-            50% { transform: translate(-3%, 2%); }
-            60% { transform: translate(2%, -4%); }
-            70% { transform: translate(-4%, 3%); }
-            80% { transform: translate(1%, -2%); }
-            90% { transform: translate(-2%, 4%); }
-        }
+
 
         /* TYPOGRAPHY */
         h1, h2 {
@@ -460,17 +437,158 @@
         .waitlist-input:focus { border-color: var(--accent); }
         .waitlist-input::placeholder { color: var(--secondary); }
 
-        /* RESPONSIVE */
+        /* PRICING GRID */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 48px;
+            align-items: start;
+        }
+
+        /* ─── RESPONSIVE ─── */
+
+        /* Tablet */
+        @media (max-width: 1024px) {
+            .section { padding: 100px 32px; }
+            .hero-wrapper { padding: 130px 32px 80px; }
+            nav { padding: 20px 32px; }
+        }
+
+        /* Mobile */
         @media (max-width: 768px) {
-            .grid { grid-template-columns: 1fr; }
-            .col-4, .col-6, .col-8 { grid-column: span 1; }
-            .stats-bar { grid-template-columns: 1fr 1fr; border-radius: 16px; }
-            nav { padding: 18px 24px; }
+
+            /* NAV */
+            nav { padding: 16px 20px; }
             .nav-link { display: none; }
-            .section { padding: 80px 24px; }
-            .hero-wrapper { padding: 120px 24px 60px; }
-            footer { grid-template-columns: 1fr; padding: 60px 24px; }
-            .price-card.featured { transform: scale(1); }
+            .btn[href="#waitlist"], nav .btn { padding: 9px 18px; font-size: 0.75rem; }
+
+            /* HERO */
+            .hero-wrapper { padding: 100px 20px 56px; min-height: 100svh; }
+            .hero-glow { width: 340px; height: 260px; top: 10%; }
+
+            .hero-claim {
+                padding: 6px 14px 6px 8px;
+                gap: 8px;
+                margin-bottom: 20px;
+                max-width: 92vw;
+            }
+            .hero-claim span {
+                font-size: 9px;
+                letter-spacing: 0.05em;
+                white-space: normal;
+                text-align: left;
+                line-height: 1.4;
+            }
+
+            .hero-meta { margin-bottom: 20px; }
+            .launch-tag { font-size: 9px; padding: 4px 12px; }
+
+            .hero-h1 {
+                font-size: clamp(2.6rem, 10vw, 3.4rem);
+                margin-bottom: 20px;
+                letter-spacing: -0.025em;
+            }
+
+            .hero-sub {
+                font-size: 0.95rem;
+                margin-bottom: 32px;
+                padding: 0 4px;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                width: 100%;
+                margin-bottom: 48px;
+            }
+            .hero-cta .btn { width: 100%; max-width: 320px; text-align: center; padding: 17px 24px; }
+            .btn-ghost { font-size: 0.85rem; padding: 12px 0; }
+
+            /* STATS — 2x2 grid, no horizontal borders on inner cells */
+            .stats-bar {
+                grid-template-columns: 1fr 1fr;
+                border-radius: 16px;
+                width: 100%;
+            }
+            .stat-item {
+                padding: 22px 12px;
+                border-right: 1px solid var(--border);
+                border-bottom: 1px solid var(--border);
+            }
+            .stat-item:nth-child(2) { border-right: none; }
+            .stat-item:nth-child(3) { border-bottom: none; }
+            .stat-item:nth-child(4) { border-right: none; border-bottom: none; }
+            .stat-item h4 { font-size: 1.8rem; }
+            .stat-item p { font-size: 0.65rem; }
+
+            /* SECTIONS */
+            .section { padding: 72px 20px; }
+            .section-h2 { font-size: clamp(1.8rem, 7vw, 2.4rem); }
+
+            /* GRID — single column, all spans reset */
+            .grid { grid-template-columns: 1fr; gap: 12px; margin-top: 36px; }
+            .col-4, .col-6, .col-8, .col-12 { grid-column: span 1; }
+            .card { padding: 28px 24px; border-radius: 16px; }
+
+            /* SHADOW MODE — nested grid fix */
+            .col-6.grid { margin-top: 0 !important; }
+
+            /* SOS FLOW */
+            .step { padding-left: 28px; padding-bottom: 36px; }
+            .step h3 { font-size: 1rem; }
+
+            /* SECTION LIGHT — who shows up */
+            .section-light { border-radius: 20px; }
+            .section-light .grid { gap: 0; }
+            .section-light .col-4 {
+                padding: 20px 0;
+                border-bottom: 1px solid rgba(0,0,0,0.08);
+            }
+            .section-light .col-4:last-child { border-bottom: none; }
+            .section-light h3 { font-size: 1rem; margin-bottom: 4px; }
+
+            /* TABLE — hide last two comparison cols, keep Feature + Voya only */
+            table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            th, td { padding: 14px 16px; font-size: 0.82rem; white-space: nowrap; }
+
+            /* SECTION DARK INSET */
+            .section-dark-inset { border-radius: 20px; }
+
+            /* PRICING — stacked, no scale transform */
+            .pricing-grid { grid-template-columns: 1fr; gap: 14px; margin-top: 32px; }
+            .price-card { border-radius: 20px; padding: 36px 28px; }
+            .price-card.featured { transform: none; border-width: 1px; }
+            .price-val { font-size: 2.6rem; margin: 12px 0 4px; }
+            .price-features { gap: 9px; margin-top: 20px; }
+            .price-features li { font-size: 0.82rem; }
+
+            /* WAITLIST */
+            #waitlist { padding: 80px 20px; }
+            #waitlist form {
+                flex-direction: column;
+                gap: 10px;
+                max-width: 100% !important;
+            }
+            .waitlist-input { width: 100%; font-size: 1rem; }
+            #waitlist .btn { width: 100%; text-align: center; padding: 17px; }
+
+            /* FOOTER */
+            footer {
+                grid-template-columns: 1fr;
+                padding: 56px 20px 40px;
+                margin-top: 60px;
+                gap: 36px;
+            }
+            footer h4 { font-size: 0.75rem; margin-bottom: 12px; }
+            footer p { font-size: 0.8rem; }
+        }
+
+        /* Very small phones */
+        @media (max-width: 375px) {
+            .hero-h1 { font-size: 2.3rem; }
+            .hero-claim span { font-size: 8px; }
         }
     </style>
 </head>
@@ -602,8 +720,11 @@
     </table>
 </section>
 
-<section class="section grid">
-    <div class="price-card col-4 reveal">
+<section class="section">
+    <span class="tag">Plans</span>
+    <h2 class="section-h2">Simple, honest pricing.</h2>
+    <div class="pricing-grid">
+    <div class="price-card reveal">
         <span class="tag">Essentials</span>
         <h3>Free</h3>
         <div class="price-val">₹0</div>
@@ -620,7 +741,7 @@
             <li><span class="cross">✗</span><span class="feat-text">Post-trip health reports</span></li>
         </ul>
     </div>
-    <div class="price-card col-4 reveal featured">
+    <div class="price-card featured reveal">
         <span class="tag">Individual</span>
         <h3>Premium</h3>
         <div class="price-val">₹499<span style="font-size: 1rem; color: var(--secondary);">/yr</span></div>
@@ -637,7 +758,7 @@
             <li class="has"><span class="check">✓</span><span class="feat-text">Weekly vehicle health score</span></li>
         </ul>
     </div>
-    <div class="price-card col-4 reveal">
+    <div class="price-card reveal">
         <span class="tag">Multi-Car</span>
         <h3>Family</h3>
         <div class="price-val">₹899<span style="font-size: 1rem; color: var(--secondary);">/yr</span></div>
@@ -652,6 +773,7 @@
             <li><span class="cross">✗</span><span class="feat-text">Fleet / commercial use</span></li>
             <li><span class="cross">✗</span><span class="feat-text">API access</span></li>
         </ul>
+    </div>
     </div>
 </section>
 
