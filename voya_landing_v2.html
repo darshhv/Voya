@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voya — India's First Proactive Vehicle Co-Pilot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #080808;
+            --fg: #f0ede8;
+            --accent: #e8621a;
+            --accent-dim: rgba(232, 98, 26, 0.15);
+            --secondary: #7a7570;
+            --glass: rgba(240, 237, 232, 0.03);
+            --glass-hover: rgba(240, 237, 232, 0.06);
+            --border: rgba(240, 237, 232, 0.09);
+            --border-hover: rgba(240, 237, 232, 0.2);
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-out: cubic-bezier(0.0, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'DM Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* GRAIN OVERLAY */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+            opacity: 0.022;
+            pointer-events: none;
+            z-index: 9999;
+            animation: grain 8s steps(10) infinite;
+        }
+        @keyframes grain {
+            0%, 100% { transform: translate(0, 0); }
+            10% { transform: translate(-2%, -3%); }
+            20% { transform: translate(3%, 2%); }
+            30% { transform: translate(-1%, 4%); }
+            40% { transform: translate(4%, -1%); }
+            50% { transform: translate(-3%, 2%); }
+            60% { transform: translate(2%, -4%); }
+            70% { transform: translate(-4%, 3%); }
+            80% { transform: translate(1%, -2%); }
+            90% { transform: translate(-2%, 4%); }
+        }
+
+        /* TYPOGRAPHY */
+        h1, h2 {
+            font-family: 'Instrument Serif', Georgia, serif;
+            letter-spacing: -0.02em;
+            line-height: 1.05;
+            font-weight: 400;
+        }
+        h3, h4 {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+        .text-sub { color: var(--secondary); font-weight: 400; }
+        .tag {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--accent);
+            margin-bottom: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tag::before {
+            content: '';
+            display: inline-block;
+            width: 16px; height: 1px;
+            background: var(--accent);
+        }
+
+        /* NAV */
+        nav {
+            position: fixed; top: 0; width: 100%; padding: 22px 48px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            background: rgba(8, 8, 8, 0.7);
+            border-bottom: 1px solid var(--border);
+            transition: padding 0.4s var(--ease);
+        }
+        .logo {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            color: var(--fg);
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+        .nav-right { display: flex; align-items: center; gap: 32px; }
+        .nav-link { font-size: 0.8rem; color: var(--secondary); text-decoration: none; letter-spacing: 0.03em; transition: color 0.2s; }
+        .nav-link:hover { color: var(--fg); }
+
+        /* HERO WRAPPER — full bleed, not constrained */
+        .hero-wrapper {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+            padding: 140px 40px 80px;
+        }
+
+        /* Radial glow behind hero */
+        .hero-glow {
+            position: absolute;
+            top: 20%; left: 50%;
+            transform: translateX(-50%);
+            width: 900px; height: 500px;
+            background: radial-gradient(ellipse, rgba(232, 98, 26, 0.07) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Horizon line */
+        .hero-horizon {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, var(--border) 30%, var(--border) 70%, transparent 100%);
+        }
+
+        /* HERO CLAIM BADGE */
+        .hero-claim {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(232, 98, 26, 0.25);
+            border-radius: 100px;
+            padding: 7px 18px 7px 8px;
+            margin-bottom: 36px;
+            opacity: 0;
+            animation: fadeUp 0.8s var(--ease) 0.1s forwards;
+        }
+        .hero-claim-dot {
+            width: 6px; height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse-dot 2s ease infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.8); }
+        }
+        .hero-claim span {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        /* LAUNCHING TAG */
+        .hero-meta {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 28px;
+            opacity: 0;
+            animation: fadeUp 0.8s var(--ease) 0.2s forwards;
+        }
+        .launch-tag {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--secondary);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 5px 14px;
+        }
+
+        /* HERO H1 */
+        .hero-h1 {
+            font-size: clamp(3.5rem, 8.5vw, 7.5rem);
+            margin-bottom: 28px;
+            max-width: 900px;
+            opacity: 0;
+            animation: fadeUp 1s var(--ease) 0.35s forwards;
+        }
+        .hero-h1 em {
+            font-style: italic;
+            color: var(--secondary);
+        }
+
+        /* HERO SUBTEXT */
+        .hero-sub {
+            font-size: 1.1rem;
+            max-width: 520px;
+            margin-bottom: 48px;
+            color: var(--secondary);
+            line-height: 1.7;
+            font-weight: 400;
+            opacity: 0;
+            animation: fadeUp 1s var(--ease) 0.5s forwards;
+        }
+
+        /* CTA GROUP */
+        .hero-cta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            opacity: 0;
+            animation: fadeUp 1s var(--ease) 0.65s forwards;
+            margin-bottom: 80px;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* STATS BAR */
+        .stats-bar {
+            width: 100%;
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeUp 1s var(--ease) 0.8s forwards;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 28px 20px;
+            border-right: 1px solid var(--border);
+            transition: background 0.3s;
+        }
+        .stat-item:hover { background: var(--glass-hover); }
+        .stat-item:last-child { border-right: none; }
+        .stat-item h4 {
+            font-family: 'Instrument Serif', serif;
+            font-size: 2.2rem;
+            font-weight: 400;
+            color: var(--fg);
+            letter-spacing: -0.02em;
+        }
+        .stat-item p {
+            font-size: 0.7rem;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 4px;
+        }
+
+        /* SECTIONS */
+        .section { padding: 120px 48px; max-width: 1320px; margin: 0 auto; }
+
+        /* BENTO GRID */
+        .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-top: 56px; }
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px;
+            transition: border-color 0.35s var(--ease), background 0.35s var(--ease), transform 0.35s var(--ease);
+        }
+        .card:hover {
+            border-color: var(--border-hover);
+            background: var(--glass-hover);
+            transform: translateY(-2px);
+        }
+        .card h3 { font-size: 1.1rem; margin-bottom: 12px; }
+        .card h4 { font-size: 1rem; margin-bottom: 10px; }
+        .col-4 { grid-column: span 4; }
+        .col-6 { grid-column: span 6; }
+        .col-8 { grid-column: span 8; }
+        .col-12 { grid-column: span 12; }
+
+        /* 5P TAGS */
+        .p-tag {
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            background: rgba(240, 237, 232, 0.07);
+            padding: 4px 10px;
+            border-radius: 4px;
+            color: var(--secondary);
+            margin-bottom: 18px;
+            display: inline-block;
+        }
+
+        /* SOS FLOW */
+        .step {
+            position: relative;
+            padding-left: 44px;
+            border-left: 1px solid var(--border);
+            padding-bottom: 48px;
+        }
+        .step:last-child { padding-bottom: 0; }
+        .step::before {
+            content: '';
+            position: absolute;
+            left: -5px; top: 4px;
+            width: 9px; height: 9px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 12px var(--accent);
+        }
+        .step h3 { font-size: 1.15rem; margin-bottom: 8px; }
+
+        /* COMPARISON TABLE */
+        table { width: 100%; border-collapse: collapse; margin-top: 48px; }
+        th, td { text-align: left; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+        th { font-size: 0.72rem; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.1em; }
+        td { font-size: 0.9rem; }
+        tbody tr { transition: background 0.2s; }
+        tbody tr:hover { background: var(--glass); }
+        .voya-col { color: var(--accent); font-weight: 600; }
+
+        /* PRICING */
+        .price-card {
+            text-align: center;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 48px 36px;
+            transition: border-color 0.3s, transform 0.3s var(--ease);
+        }
+        .price-card:hover { border-color: var(--border-hover); transform: translateY(-3px); }
+        .price-card.featured {
+            border: 1px solid var(--accent);
+            background: linear-gradient(145deg, rgba(232,98,26,0.06) 0%, transparent 60%);
+            transform: scale(1.04);
+        }
+        .price-card.featured:hover { transform: scale(1.04) translateY(-3px); }
+        .price-val {
+            font-family: 'Instrument Serif', serif;
+            font-size: 3.2rem;
+            font-weight: 400;
+            margin: 16px 0 4px;
+            letter-spacing: -0.02em;
+        }
+        .price-features {
+            list-style: none;
+            margin-top: 28px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+        }
+        .price-features li {
+            font-size: 0.83rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            line-height: 1.4;
+        }
+        .price-features li .check { color: #4cd964; flex-shrink: 0; margin-top: 1px; }
+        .price-features li .cross { color: rgba(240,237,232,0.2); flex-shrink: 0; margin-top: 1px; }
+        .price-features li span.feat-text { color: var(--secondary); }
+        .price-features li.has .feat-text { color: var(--fg); }
+        .price-divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+        /* SECTION HEADINGS */
+        .section-h2 { font-size: clamp(2rem, 4vw, 3.2rem); margin-top: 8px; }
+
+        /* FOOTER */
+        footer {
+            padding: 72px 48px;
+            border-top: 1px solid var(--border);
+            margin-top: 100px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 40px;
+            max-width: 1320px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        footer h4 { font-size: 0.8rem; font-weight: 600; margin-bottom: 20px; letter-spacing: 0.04em; }
+        footer p { font-size: 0.85rem; margin-bottom: 10px; }
+
+        /* BUTTONS */
+        .btn {
+            background: var(--fg);
+            color: var(--bg);
+            padding: 16px 32px;
+            border-radius: 100px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: 0.3s var(--ease);
+            letter-spacing: 0.01em;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover { opacity: 0.88; transform: translateY(-2px); }
+        .btn-ghost {
+            background: transparent;
+            color: var(--secondary);
+            padding: 16px 24px;
+            border-radius: 100px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: color 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-ghost:hover { color: var(--fg); }
+
+        /* SCROLL REVEAL */
+        .reveal { opacity: 0; transform: translateY(28px); transition: 0.9s var(--ease); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+
+        /* WHITE SECTION */
+        .section-light { background: #f0ede8; border-radius: 32px; }
+        .section-light h2, .section-light h3 { color: #0d0d0d; }
+        .section-light p { color: #5a5550; }
+        .section-light .tag { color: #0d0d0d; opacity: 0.4; }
+        .section-light .tag::before { background: #0d0d0d; }
+
+        /* DARK INSET */
+        .section-dark-inset { background: #0d0c0b; border-radius: 32px; }
+
+        /* INPUT */
+        .waitlist-input {
+            flex: 1;
+            padding: 17px 22px;
+            border-radius: 12px;
+            background: rgba(240,237,232,0.05);
+            border: 1px solid var(--border);
+            color: var(--fg);
+            font-size: 0.95rem;
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .waitlist-input:focus { border-color: var(--accent); }
+        .waitlist-input::placeholder { color: var(--secondary); }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+            .col-4, .col-6, .col-8 { grid-column: span 1; }
+            .stats-bar { grid-template-columns: 1fr 1fr; border-radius: 16px; }
+            nav { padding: 18px 24px; }
+            .nav-link { display: none; }
+            .section { padding: 80px 24px; }
+            .hero-wrapper { padding: 120px 24px 60px; }
+            footer { grid-template-columns: 1fr; padding: 60px 24px; }
+            .price-card.featured { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="#" class="logo">Voya</a>
+    <div class="nav-right">
+        <a href="#" class="nav-link">Features</a>
+        <a href="#" class="nav-link">Pricing</a>
+        <a href="#waitlist" class="btn" style="padding: 10px 22px; font-size: 0.78rem;">Get Early Access</a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero-wrapper">
+    <div class="hero-glow"></div>
+
+    <!-- India's first claim -->
+    <div class="hero-claim">
+        <div class="hero-claim-dot"></div>
+        <span>India's First Proactive Vehicle Co-Pilot</span>
+    </div>
+
+    <!-- Launching tag + separator -->
+    <div class="hero-meta">
+        <span class="launch-tag">Launching 2026</span>
+    </div>
+
+    <h1 class="hero-h1">Your car knows<br><em>before you do.</em></h1>
+
+    <p class="hero-sub">Every Journey. Covered. Voya predicts mechanical failure, prepares your rescue, and resolves the crisis — before you even step out of the vehicle.</p>
+
+    <div class="hero-cta">
+        <a href="#waitlist" class="btn">Join the Waitlist</a>
+        <a href="#framework" class="btn-ghost">See how it works →</a>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-item"><h4>330M+</h4><p>Active Vehicles</p></div>
+        <div class="stat-item"><h4>70%</h4><p>Highway Deadzones</p></div>
+        <div class="stat-item"><h4>6 HR</h4><p>Avg. Wait Time</p></div>
+        <div class="stat-item"><h4>ZERO</h4><p>Proactive Rivals</p></div>
+    </div>
+
+    <div class="hero-horizon"></div>
+</div>
+
+<section class="section">
+    <span class="tag">The System is Broken</span>
+    <h2 class="section-h2">Every breakdown is a<br>failure of preparation.</h2>
+    <div class="grid">
+        <div class="card col-6 reveal"><h3>01. No signal. No call.</h3><p class="text-sub">Connectivity fails exactly when you need it most. The current system relies on a hope and a signal.</p></div>
+        <div class="card col-6 reveal reveal-delay-1"><h3>02. No idea what went wrong.</h3><p class="text-sub">Modern cars are black boxes. Without data, you are at the mercy of the first mechanic you find.</p></div>
+        <div class="card col-6 reveal reveal-delay-2"><h3>03. No plan. Pure panic.</h3><p class="text-sub">Adrenaline is not a strategy. Decision-making under stress leads to safety risks and overpayment.</p></div>
+        <div class="card col-6 reveal reveal-delay-3"><h3>04. Reactive by design.</h3><p class="text-sub">Roadside assistance waits for your disaster. We believe the disaster is optional.</p></div>
+    </div>
+</section>
+
+<section class="section section-dark-inset" id="framework">
+    <span class="tag">The Framework</span>
+    <h2 class="section-h2">The 5P Protocol.</h2>
+    <div class="grid">
+        <div class="card col-4 reveal"><span class="p-tag">Before you leave</span><h3>Predict</h3><p class="text-sub">AI scans telemetry for micro-faults before the engine starts.</p></div>
+        <div class="card col-4 reveal reveal-delay-1"><span class="p-tag">While driving</span><h3>Prevent</h3><p class="text-sub">Real-time risk scoring based on driving heat and route terrain.</p></div>
+        <div class="card col-4 reveal reveal-delay-2"><span class="p-tag">Always ready</span><h3>Prepare</h3><p class="text-sub">Offline caching of local help for every kilometer of your route.</p></div>
+        <div class="card col-8 reveal"><span class="p-tag">When it matters</span><h3>Protect</h3><p class="text-sub">Instant SOS that transmits a 60-second diagnostic history to responders.</p></div>
+        <div class="card col-4 reveal reveal-delay-1"><span class="p-tag">After every trip</span><h3>Report</h3><p class="text-sub">Post-drive health audit to ensure your car is ready for tomorrow.</p></div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="grid">
+        <div class="col-6">
+            <span class="tag">Core Engine</span>
+            <h2 class="section-h2">Shadow Mode.</h2>
+            <p class="text-sub" style="margin-top: 24px; line-height: 1.8;">The intelligence engine behind the 5P system. Always-on with your permission. It auto-detects when you're driving — and goes completely silent when you're not. Zero data stored after the trip ends.</p>
+        </div>
+        <div class="col-6 grid" style="margin-top:0">
+            <div class="card col-6 reveal"><h4>Auto-Detect</h4><p class="text-sub">Zero manual input. It feels your drive.</p></div>
+            <div class="card col-6 reveal reveal-delay-1"><h4>Risk Scoring</h4><p class="text-sub">Recalculating safety every 1,000ms.</p></div>
+            <div class="card col-6 reveal reveal-delay-2"><h4>Critical Only</h4><p class="text-sub">Silent unless it's a genuine emergency.</p></div>
+            <div class="card col-6 reveal reveal-delay-3"><h4>Privacy First</h4><p class="text-sub">Data is ephemeral. Gone after the trip.</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <span class="tag">The Response</span>
+    <h2 class="section-h2">Fail-Safe SOS Flow.</h2>
+    <div style="margin-top: 60px; max-width: 640px;">
+        <div class="step reveal"><h3>01. SOS Activated</h3><p class="text-sub">One-tap trigger or auto-deployment on crash detection.</p></div>
+        <div class="step reveal"><h3>02. AI Diagnosis</h3><p class="text-sub">Voya sends the precise mechanical fault to the technician.</p></div>
+        <div class="step reveal"><h3>03. Community Alert</h3><p class="text-sub">Nearby Good Samaritans are notified for immediate on-site support.</p></div>
+        <div class="step reveal"><h3>04. Help Dispatched</h3><p class="text-sub">Verified professional help arrives with the parts you actually need.</p></div>
+    </div>
+</section>
+
+<section class="section section-light">
+    <span class="tag">Human Infrastructure</span>
+    <h2 class="section-h2">Who shows up?</h2>
+    <div class="grid" style="margin-top: 48px;">
+        <div class="col-4"><h3>Mechanics</h3><p>Verified, background-checked specialists.</p></div>
+        <div class="col-4"><h3>Tow Services</h3><p>Flatbed and hydraulic lift support.</p></div>
+        <div class="col-4"><h3>Emergency Fuel</h3><p>On-demand delivery for EV and Petrol.</p></div>
+        <div class="col-4"><h3>Medical</h3><p>First-responder coordination.</p></div>
+        <div class="col-4"><h3>Tyre Services</h3><p>On-site puncture and replacement.</p></div>
+        <div class="col-4"><h3>Good Samaritans</h3><p>Peer-to-peer roadside community.</p></div>
+    </div>
+</section>
+
+<section class="section">
+    <span class="tag">Analysis</span>
+    <h2 class="section-h2">The Voya Advantage.</h2>
+    <table>
+        <thead>
+            <tr><th>Feature</th><th class="voya-col">Voya</th><th>Insurance RSA</th><th>Other Apps</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Proactive Diagnosis</td><td class="voya-col">Yes</td><td>No</td><td>No</td></tr>
+            <tr><td>Offline Protocol</td><td class="voya-col">Yes</td><td>No</td><td>No</td></tr>
+            <tr><td>Shadow Mode AI</td><td class="voya-col">Yes</td><td>No</td><td>No</td></tr>
+            <tr><td>60s Data Burst</td><td class="voya-col">Yes</td><td>No</td><td>No</td></tr>
+            <tr><td>Community Net</td><td class="voya-col">Yes</td><td>No</td><td>No</td></tr>
+            <tr><td>Transparent Pricing</td><td class="voya-col">Yes</td><td>Partial</td><td>No</td></tr>
+            <tr><td>Zero-Call SOS</td><td class="voya-col">Yes</td><td>No</td><td>No</td></tr>
+            <tr><td>Predictive Alerts</td><td class="voya-col">Yes</td><td>No</td><td>No</td></tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="section grid">
+    <div class="price-card col-4 reveal">
+        <span class="tag">Essentials</span>
+        <h3>Free</h3>
+        <div class="price-val">₹0</div>
+        <p class="text-sub" style="font-size:0.85rem;">For the occasional driver.</p>
+        <ul class="price-features">
+            <li class="has"><span class="check">✓</span><span class="feat-text">One-press SOS (SMS to contacts)</span></li>
+            <li class="has"><span class="check">✓</span><span class="feat-text">Live location to emergency contacts</span></li>
+            <li class="has"><span class="check">✓</span><span class="feat-text">Basic provider directory (call/WhatsApp)</span></li>
+            <li class="has"><span class="check">✓</span><span class="feat-text">2 offline route caches/month</span></li>
+            <li><span class="cross">✗</span><span class="feat-text">Shadow Mode AI</span></li>
+            <li><span class="cross">✗</span><span class="feat-text">Trip intelligence & route risk map</span></li>
+            <li><span class="cross">✗</span><span class="feat-text">AI self-diagnosis</span></li>
+            <li><span class="cross">✗</span><span class="feat-text">Early warnings</span></li>
+            <li><span class="cross">✗</span><span class="feat-text">Post-trip health reports</span></li>
+        </ul>
+    </div>
+    <div class="price-card col-4 reveal featured">
+        <span class="tag">Individual</span>
+        <h3>Premium</h3>
+        <div class="price-val">₹499<span style="font-size: 1rem; color: var(--secondary);">/yr</span></div>
+        <p class="text-sub" style="font-size:0.85rem;">The full 5P Framework. Less than ₹42/month.</p>
+        <ul class="price-features">
+            <li class="has"><span class="check">✓</span><span class="feat-text">Everything in Free</span></li>
+            <li class="has"><span class="check">✓</span><span class="feat-text">Shadow Mode — always-on AI co-pilot</span></li>
+            <li class="has"><span class="check">✓</span><span class="feat-text">Trip intelligence & route risk map</span></li>
+            <li class="has"><span class="check">✓</span><span class="feat-text">Unlimited offline route caching</span></li>
+            <li class="has"><span class="check">✓</span><span class="feat-text">AI self-diagnosis on breakdown</span></li>
+            <li class="has"><span class="check">✓</span><span class="feat-text">Real-time early warnings</span></li>
+            <li class="has"><span class="check">✓</span><span class="feat-text">Post-trip health reports</span></li>
+            <li class="has"><span class="check">✓</span><span class="feat-text">Transparent provider marketplace</span></li>
+            <li class="has"><span class="check">✓</span><span class="feat-text">Weekly vehicle health score</span></li>
+        </ul>
+    </div>
+    <div class="price-card col-4 reveal">
+        <span class="tag">Multi-Car</span>
+        <h3>Family</h3>
+        <div class="price-val">₹899<span style="font-size: 1rem; color: var(--secondary);">/yr</span></div>
+        <p class="text-sub" style="font-size:0.85rem;">Up to 4 vehicles. Every member covered.</p>
+        <ul class="price-features">
+            <li class="has"><span class="check">✓</span><span class="feat-text">Everything in Premium</span></li>
+            <li class="has"><span class="check">✓</span><span class="feat-text">Up to 4 vehicles on one plan</span></li>
+            <li class="has"><span class="check">✓</span><span class="feat-text">Family dashboard — all vehicles in one view</span></li>
+            <li class="has"><span class="check">✓</span><span class="feat-text">Shared emergency contact list</span></li>
+            <li class="has"><span class="check">✓</span><span class="feat-text">Cross-vehicle health comparison</span></li>
+            <li class="has"><span class="check">✓</span><span class="feat-text">Priority SOS response queue</span></li>
+            <li><span class="cross">✗</span><span class="feat-text">Fleet / commercial use</span></li>
+            <li><span class="cross">✗</span><span class="feat-text">API access</span></li>
+        </ul>
+    </div>
+</section>
+
+<section id="waitlist" style="text-align:center; padding: 140px 48px; max-width: 800px; margin: 0 auto;">
+    <span class="tag" style="justify-content: center;">Early Access</span>
+    <h2 class="reveal" style="font-size: clamp(2.2rem, 5vw, 4rem); margin-top: 8px; margin-bottom: 24px;">Never get stuck on a<br>highway alone again.</h2>
+    <p class="reveal text-sub" style="max-width: 440px; margin: 0 auto 40px; line-height: 1.8;">Be among the first to experience India's most intelligent vehicle companion. Limited early access.</p>
+    <form class="reveal" style="display: flex; gap: 10px; width: 100%; max-width: 480px; margin: 0 auto;">
+        <input type="email" placeholder="Your email address" class="waitlist-input">
+        <button type="submit" class="btn">Join Now</button>
+    </form>
+    <p style="margin-top: 20px; font-size: 0.8rem; color: var(--accent); letter-spacing: 0.04em;">646 drivers already on the waitlist. Be next.</p>
+</section>
+
+<footer>
+    <div>
+        <a href="#" class="logo">Voya</a>
+        <p class="text-sub" style="margin-top: 16px; font-size: 0.85rem; line-height: 1.7;">A product by <a href="https://truffaire.in" target="_blank" style="color: var(--fg); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--border);">Truffaire</a> — Systems Engineering for the modern road.</p>
+        <p style="margin-top: 28px; font-size: 0.75rem; color: var(--secondary); letter-spacing: 0.03em;">© 2026 Truffaire. All rights reserved.</p>
+    </div>
+    <div>
+        <h4>Product</h4>
+        <p class="text-sub">Features</p>
+        <p class="text-sub">Shadow Mode</p>
+        <p class="text-sub">Pricing</p>
+    </div>
+    <div>
+        <h4>Company</h4>
+        <p class="text-sub">About Truffaire</p>
+        <p class="text-sub">Privacy Policy</p>
+        <p class="text-sub">Terms of Use</p>
+    </div>
+</footer>
+
+<script>
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.08 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
